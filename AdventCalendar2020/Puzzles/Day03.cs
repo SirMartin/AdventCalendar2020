@@ -75,72 +75,69 @@ namespace AdventCalendar2020.Puzzles
         /// </summary>
         private int RunPuzzle1()
         {
-            var validPasswordCount = 0;
-
-            var inputLines = GetInputLines();
-
-            foreach (var line in inputLines)
-            {
-                var lineParts = line.Split(' ');
-
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
-                {
-                    validPasswordCount++;
-                }
-            }
-
-            return validPasswordCount;
+            return FindNumberOfTrees(3, 1);
         }
 
         /// <summary>
-        ///    --- Part Two ---
-        ///    While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
-        ///
-        ///    The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
-        ///
-        ///    Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter.Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
-        ///
-        ///    Given the same example list from above:
-        ///
-        ///       1-3 a: abcde is valid: position 1 contains a and position 3 does not.
-        ///       1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
-        ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
-        ///    How many passwords are valid according to the new interpretation of the policies?
+        /// --- Part Two ---
+        /// Time to check the rest of the slopes - you need to minimize the probability of a sudden arboreal stop, after all.
+        /// 
+        ///     Determine the number of trees you would encounter if, for each of the following slopes, you start at the top-left corner and traverse the map all the way to the bottom:
+        /// 
+        /// Right 1, down 1.
+        /// Right 3, down 1. (This is the slope you already checked.)
+        /// Right 5, down 1.
+        /// Right 7, down 1.
+        /// Right 1, down 2.
+        /// In the above example, these slopes would find 2, 7, 3, 4, and 2 tree(s) respectively; multiplied together, these produce the answer 336.
+        /// 
+        /// What do you get if you multiply together the number of trees encountered on each of the listed slopes?
         /// </summary>
-        private int RunPuzzle2()
+        private long RunPuzzle2()
         {
-            var validPasswordCount = 0;
+            // Right 1, down 1.
+            var a = FindNumberOfTrees(1, 1);
+            // Right 3, down 1. (This is the slope you already checked.)
+            var b = RunPuzzle1();
+            // Right 5, down 1.
+            var c = FindNumberOfTrees(5, 1);
+            // Right 7, down 1.
+            var d = FindNumberOfTrees(7, 1);
+            // Right 1, down 2.
+            var e = FindNumberOfTrees(1, 2);
 
+            return (long)a * b * c * d * e;
+        }
+
+        private int FindNumberOfTrees(int rightMovement, int downMovement)
+        {
             var inputLines = GetInputLines();
 
-            foreach (var line in inputLines)
+            var width = inputLines.First().Length;
+            var treesInTheWay = 0;
+            var x = 0;
+
+            // No movement in the first row.
+            for (var y = downMovement; y < inputLines.Length; y += downMovement)
             {
-                var lineParts = line.Split(' ');
+                // Move
+                x += rightMovement;
 
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
+                // Adjust the X
+                var adjustedX = x;
+                while (adjustedX >= width)
                 {
-                    validPasswordCount++;
+                    adjustedX -= width;
+                }
+
+                // Check if it is a tree.
+                if (inputLines[y][adjustedX] == '#')
+                {
+                    treesInTheWay++;
                 }
             }
 
-            return validPasswordCount;
+            return treesInTheWay;
         }
     }
 }
