@@ -43,6 +43,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Puzzles\Day20.cs" />
+    <Compile Include="Puzzles\Day10.cs" />
+    <Compile Include="Puzzles\Day21.cs" />
+    <Compile Include="Puzzles\Day11.cs" />
+    <Compile Include="Puzzles\Day22.cs" />
+    <Compile Include="Puzzles\Day12.cs" />
+    <Compile Include="Puzzles\Day23.cs" />
+    <Compile Include="Puzzles\Day24.cs" />
+    <Compile Include="Puzzles\Day14.cs" />
+    <Compile Include="Puzzles\Day13.cs" />
+    <Compile Include="Puzzles\Day04.cs" />
+    <Compile Include="Puzzles\Day25.cs" />
+    <Compile Include="Puzzles\Day15.cs" />
+    <Compile Include="Puzzles\Day05.cs" />
+    <Compile Include="Puzzles\Day16.cs" />
+    <Compile Include="Puzzles\Day06.cs" />
+    <Compile Include="Puzzles\Day17.cs" />
+    <Compile Include="Puzzles\Day07.cs" />
+    <Compile Include="Puzzles\Day18.cs" />
+    <Compile Include="Puzzles\Day08.cs" />
+    <Compile Include="Puzzles\Day19.cs" />
+    <Compile Include="Puzzles\Day09.cs" />
+    <Compile Include="Puzzles\Day03.cs" />
     <Compile Include="Puzzles\Day02.cs" />
     <Compile Include="Puzzles\Day01.cs" />
     <Compile Include="Program.cs" />
@@ -52,6 +75,75 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Inputs\day11.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day10.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day12.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day13.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day04.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day20.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day14.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day05.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day21.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day22.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day16.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day24.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day17.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day23.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day18.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day08.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day15.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day25.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day19.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day09.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day07.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day06.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Inputs\day03.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Inputs\day02.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

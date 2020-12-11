@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day02
+    public class Day21
     {
-        private const string DayNumber = "02";
+        private const string DayNumber = "21";
 
         public void Run()
         {

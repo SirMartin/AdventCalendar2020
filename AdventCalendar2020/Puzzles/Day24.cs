@@ -2,9 +2,9 @@
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day01
+    public class Day24
     {
-        private const string DayNumber = "01";
+        private const string DayNumber = "24";
 
         public void Run()
         {
