@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AdventCalendar2020.Puzzles
@@ -9,10 +10,15 @@ namespace AdventCalendar2020.Puzzles
 
         public void Run()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var result1 = RunPuzzle1();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1}");
+            stopwatch.Stop();
+            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+            stopwatch.Restart();
             var result2 = RunPuzzle2();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2}");
+            stopwatch.Stop();
+            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         private string[] GetInputLines()
