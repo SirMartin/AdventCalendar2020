@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using AdventCalendar2020.Puzzles;
 
 namespace AdventCalendar2020
@@ -7,12 +8,15 @@ namespace AdventCalendar2020
     {
         static void Main(string[] args)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             new Day01().Run();
             new Day02().Run();
             new Day03().Run();
             new Day04().Run();
             new Day05().Run();
-            //new Day06().Run();
+            new Day06().Run();
             //new Day07().Run();
             //new Day08().Run();
             //new Day09().Run();
@@ -33,6 +37,8 @@ namespace AdventCalendar2020
             //new Day24().Run();
             //new Day25().Run();
 
+            stopwatch.Stop();
+            Console.WriteLine($"Total time elapsed: {stopwatch.ElapsedMilliseconds} ms.");
 
             Console.ReadLine();
         }
