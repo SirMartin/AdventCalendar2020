@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -15,10 +16,10 @@ namespace AdventCalendar2020.Puzzles
             var result1 = RunPuzzle1();
             stopwatch.Stop();
             Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+            //stopwatch.Restart();
+            //var result2 = RunPuzzle2();
+            //stopwatch.Stop();
+            //Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         private string[] GetInputLines()
@@ -27,51 +28,89 @@ namespace AdventCalendar2020.Puzzles
         }
 
         /// <summary>
-        /// --- Day 2: Password Philosophy ---
-        ///     Your flight departs in a few days from the coastal airport; the easiest way down to the coast from here is via toboggan.
+        /// --- Day 7: Handy Haversacks ---
+        /// You land at the regional airport in time for your next flight.In fact, it looks like you'll even have time to grab some food: all flights are currently delayed due to issues in luggage processing.
         /// 
-        ///     The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. "Something's wrong with our computers; we can't log in!" You ask if you can take a look.
+        /// Due to recent aviation regulations, many rules(your puzzle input) are being enforced about bags and their contents; bags must be color-coded and must contain specific quantities of other color-coded bags.Apparently, nobody responsible for these regulations considered how long they would take to enforce!
         /// 
-        ///     Their password database seems to be a little corrupted: some of the passwords wouldn't have been allowed by the Official Toboggan Corporate Policy that was in effect when they were chosen.
         /// 
-        ///     To try to debug the problem, they have created a list (your puzzle input) of passwords(according to the corrupted database) and the corporate policy when that password was set.
+        /// For example, consider the following rules:
         /// 
-        ///     For example, suppose you have the following list:
         /// 
-        /// 1-3 a: abcde
-        /// 1-3 b: cdefg
-        /// 2-9 c: ccccccccc
-        ///     Each line gives the password policy and then the password.The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid.For example, 1-3 a means that the password must contain a at least 1 time and at most 3 times.
+        /// light red bags contain 1 bright white bag, 2 muted yellow bags.
+        /// dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+        /// bright white bags contain 1 shiny gold bag.
+        /// muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+        /// shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+        /// dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+        /// vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+        /// faded blue bags contain no other bags.
+        /// dotted black bags contain no other bags.
+        /// These rules specify the required contents for 9 bag types. In this example, every faded blue bag is empty, every vibrant plum bag contains 11 bags (5 faded blue and 6 dotted black), and so on.
         /// 
-        ///     In the above example, 2 passwords are valid.The middle password, cdefg, is not; it contains no instances of b, but needs at least 1. The first and third passwords are valid: they contain one a or nine c, both within the limits of their respective policies.
+        /// You have a shiny gold bag.If you wanted to carry it in at least one other bag, how many different bag colors would be valid for the outermost bag? (In other words: how many colors can, eventually, contain at least one shiny gold bag?)
         /// 
-        ///     How many passwords are valid according to their policies?
+        /// In the above rules, the following options would be available to you:
+        /// 
+        /// A bright white bag, which can hold your shiny gold bag directly.
+        /// A muted yellow bag, which can hold your shiny gold bag directly, plus some other bags.
+        /// A dark orange bag, which can hold bright white and muted yellow bags, either of which could then hold your shiny gold bag.
+        /// A light red bag, which can hold bright white and muted yellow bags, either of which could then hold your shiny gold bag.
+        /// So, in this example, the number of bag colors that can eventually contain at least one shiny gold bag is 4.
+        /// 
+        /// How many bag colors can eventually contain at least one shiny gold bag? (The list of rules is quite long; make sure you get all of it.)
         /// </summary>
         private int RunPuzzle1()
         {
-            var validPasswordCount = 0;
+            const string myBag = "shiny gold";
 
+            var colorsToIterate = GetColorsCanCarryMyBag(new List<string>() { myBag }, new List<string>());
+
+            var totalColorsCanCarryMyBag = new List<string>(){};
+            totalColorsCanCarryMyBag.AddRange(colorsToIterate);
+
+            var foundNewColors = true;
+            while (foundNewColors)
+            {
+                var newColorsFounded = GetColorsCanCarryMyBag(colorsToIterate, totalColorsCanCarryMyBag);
+
+                if (!newColorsFounded.Any())
+                {
+                    foundNewColors = false;
+                }
+
+                totalColorsCanCarryMyBag.AddRange(newColorsFounded);
+                colorsToIterate = new List<string>(newColorsFounded);
+            }
+
+            return totalColorsCanCarryMyBag.Count;
+        }
+
+        private List<string> GetColorsCanCarryMyBag(List<string> colorsToSearch, List<string> colorsFoundedForNow)
+        {
             var inputLines = GetInputLines();
 
+            var colorsCanCarryMyBag = new List<string>();
             foreach (var line in inputLines)
             {
-                var lineParts = line.Split(' ');
-
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
+                var content = line.Substring(line.IndexOf("contain") + "contain".Length);
+                foreach (var colorCarried in colorsToSearch)
                 {
-                    validPasswordCount++;
+                    if (content.Contains(colorCarried))
+                    {
+                        var bagColor = line.Remove(line.IndexOf(' ', line.IndexOf(' ') + 1));
+
+                        if (!colorsFoundedForNow.Contains(bagColor))
+                        {
+                            colorsCanCarryMyBag.Add(bagColor);
+                        }
+
+                        break;
+                    }
                 }
             }
 
-            return validPasswordCount;
+            return colorsCanCarryMyBag;
         }
 
         /// <summary>
