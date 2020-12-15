@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace AdventCalendar2020.Puzzles
 {
     public class Day08
     {
         private const string DayNumber = "08";
+        private string[] _inputLines;
 
         public void Run()
         {
@@ -16,15 +16,21 @@ namespace AdventCalendar2020.Puzzles
             var result1 = RunPuzzle1();
             stopwatch.Stop();
             Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            //stopwatch.Restart();
-            //var result2 = RunPuzzle2();
-            //stopwatch.Stop();
-            //Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+            stopwatch.Restart();
+            var result2 = RunPuzzle2();
+            stopwatch.Stop();
+            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         private string[] GetInputLines()
         {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
+            if (_inputLines != null)
+            {
+                return _inputLines;
+            }
+
+            _inputLines = System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
+            return _inputLines;
         }
 
         /// <summary>
@@ -158,30 +164,71 @@ namespace AdventCalendar2020.Puzzles
         /// </summary>
         private int RunPuzzle2()
         {
-            var validPasswordCount = 0;
-
             var inputLines = GetInputLines();
+            var pastLines = new List<int>();
 
-            foreach (var line in inputLines)
+            var changedInstructions = new List<int>();
+            var newIndexChanged = -1;
+            var accValue = 0;
+            var i = 0;
+
+            while (i < inputLines.Length)
             {
-                var lineParts = line.Split(' ');
-
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
+                while (!pastLines.Contains(i) && i < inputLines.Length)
                 {
-                    validPasswordCount++;
+                    var instruction = inputLines[i];
+                    pastLines.Add(i);
+                    // Read instruction.
+                    if (instruction.StartsWith("acc"))
+                    {
+                        accValue = CalculateNewValue(instruction.Remove(0, 4), accValue);
+                        i++;
+                    }
+                    else if (instruction.StartsWith("jmp"))
+                    {
+                        if (changedInstructions.Count > 0 && !changedInstructions.Contains(i) && newIndexChanged == -1)
+                        {
+                            // Change function.
+                            newIndexChanged = i;
+                            i++;
+                        }
+                        else
+                        {
+                            // JMP
+                            i = CalculateNewValue(instruction.Remove(0, 4), i);
+                        }
+                    }
+                    else if (instruction.StartsWith("nop"))
+                    {
+                        if (changedInstructions.Count > 0 && !changedInstructions.Contains(i) && newIndexChanged == -1)
+                        {
+                            // Change function.
+                            newIndexChanged = i;
+                            i = CalculateNewValue(instruction.Remove(0, 4), i);
+                        }
+                        else
+                        {
+                            // NOP
+                            i++;
+                        }
+                    }
                 }
+
+                if (i >= inputLines.Length)
+                {
+                    return accValue;
+                }
+
+                // Program not finished. Try again. Restart variables.
+                changedInstructions.Add(newIndexChanged);
+                newIndexChanged = -1;
+                accValue = 0;
+                i = 0;
+                pastLines = new List<int>();
             }
 
-            return validPasswordCount;
+            // Program finished.
+            return -1;
         }
     }
 }
