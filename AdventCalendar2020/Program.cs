@@ -19,7 +19,7 @@ namespace AdventCalendar2020
             new Day06().Run();
             new Day07().Run();
             new Day08().Run();
-            //new Day09().Run();
+            new Day09().Run();
             //new Day10().Run();
             //new Day11().Run();
             //new Day12().Run();

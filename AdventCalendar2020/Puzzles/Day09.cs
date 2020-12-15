@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NUnit.Framework;
 
 namespace AdventCalendar2020.Puzzles
 {
@@ -27,126 +29,152 @@ namespace AdventCalendar2020.Puzzles
         }
 
         /// <summary>
-        /// --- Day 3: Toboggan Trajectory ---
-        /// With the toboggan login problems resolved, you set off toward the airport.While travel by toboggan might be easy, it's certainly not safe: there's very minimal steering and the area is covered in trees.You'll need to see which angles will take you near the fewest trees.
+        /// --- Day 9: Encoding Error ---
+        /// With your neighbor happily enjoying their video game, you turn your attention to an open data port on the little screen in the seat in front of you.
         /// 
-        /// Due to the local geology, trees in this area only grow on exact integer coordinates in a grid.You make a map (your puzzle input) of the open squares(.) and trees(#) you can see. For example:
+        /// Though the port is non-standard, you manage to connect it to your computer through the clever use of several paperclips.Upon connection, the port outputs a series of numbers(your puzzle input).
         /// 
-        /// ..##.......
-        /// #...#...#..
-        /// .#....#..#.
-        /// ..#.#...#.#
-        /// .#...##..#.
-        /// ..#.##.....
-        /// .#.#.#....#
-        /// .#........#
-        /// #.##...#...
-        /// #...##....#
-        /// .#..#...#.#
-        /// These aren't the only trees, though; due to something you read about once involving arboreal genetics and biome stability, the same pattern repeats to the right many times:
+        /// The data appears to be encrypted with the eXchange-Masking Addition System(XMAS) which, conveniently for you, is an old cypher with an important weakness.
         /// 
-        /// ..##.........##.........##.........##.........##.........##.......  --->
-        /// #...#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
-        /// .#....#..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
-        /// ..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
-        /// .#...##..#..#...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
-        /// ..#.##.......#.##.......#.##.......#.##.......#.##.......#.##.....  --->
-        /// .#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
-        /// .#........#.#........#.#........#.#........#.#........#.#........#
-        /// #.##...#...#.##...#...#.##...#...#.##...#...#.##...#...#.##...#...
-        /// #...##....##...##....##...##....##...##....##...##....##...##....#
-        /// .#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#.#..#...#.#  --->
-        /// You start on the open square (.) in the top-left corner and need to reach the bottom(below the bottom-most row on your map).
+        /// XMAS starts by transmitting a preamble of 25 numbers.After that, each number you receive should be the sum of any two of the 25 immediately previous numbers.The two numbers will have different values, and there might be more than one such pair.
         /// 
-        /// The toboggan can only follow a few specific slopes(you opted for a cheaper model that prefers rational numbers); start by counting all the trees you would encounter for the slope right 3, down 1:
+        /// For example, suppose your preamble consists of the numbers 1 through 25 in a random order.To be valid, the next number must be the sum of two of those numbers:
         /// 
-        /// From your starting position at the top-left, check the position that is right 3 and down 1. Then, check the position that is right 3 and down 1 from there, and so on until you go past the bottom of the map.
+        /// 26 would be a valid next number, as it could be 1 plus 25 (or many other pairs, like 2 and 24).
+        /// 49 would be a valid next number, as it is the sum of 24 and 25.
+        /// 100 would not be valid; no two of the previous 25 numbers sum to 100.
+        /// 50 would also not be valid; although 25 appears in the previous 25 numbers, the two numbers in the pair must be different.
+        /// Suppose the 26th number is 45, and the first number(no longer an option, as it is more than 25 numbers ago) was 20. Now, for the next number to be valid, there needs to be some pair of numbers among 1-19, 21-25, or 45 that add up to it:
         /// 
-        /// The locations you'd check in the above example are marked here with O where there was an open square and X where there was a tree:
+        /// 26 would still be a valid next number, as 1 and 25 are still within the previous 25 numbers.
+        /// 65 would not be valid, as no two of the available numbers sum to it.
+        /// 64 and 66 would both be valid, as they are the result of 19+45 and 21+45 respectively.
+        /// Here is a larger example which only considers the previous 5 numbers(and has a preamble of length 5) :
         /// 
-        /// ..##.........##.........##.........##.........##.........##.......  --->
-        /// #..O#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
-        /// .#....X..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
-        /// ..#.#...#O#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
-        /// .#...##..#..X...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
-        /// ..#.##.......#.X#.......#.##.......#.##.......#.##.......#.##.....  --->
-        /// .#.#.#....#.#.#.#.O..#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
-        /// .#........#.#........X.#........#.#........#.#........#.#........#
-        /// #.##...#...#.##...#...#.X#...#...#.##...#...#.##...#...#.##...#...
-        /// #...##....##...##....##...#X....##...##....##...##....##...##....#
-        /// .#..#...#.#.#..#...#.#.#..#...X.#.#..#...#.#.#..#...#.#.#..#...#.#  --->
-        /// In this example, traversing the map using this slope would cause you to encounter 7 trees.
+        /// 35
+        /// 20
+        /// 15
+        /// 25
+        /// 47
+        /// 40
+        /// 62
+        /// 55
+        /// 65
+        /// 95
+        /// 102
+        /// 117
+        /// 150
+        /// 182
+        /// 127
+        /// 219
+        /// 299
+        /// 277
+        /// 309
+        /// 576
+        /// In this example, after the 5-number preamble, almost every number is the sum of two of the previous 5 numbers; the only number that does not follow this rule is 127.
         /// 
-        /// Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
+        /// The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it. What is the first number that does not have this property?
         /// </summary>
         private int RunPuzzle1()
         {
-            var validPasswordCount = 0;
-
+            const int preamble = 25;
             var inputLines = GetInputLines();
 
-            foreach (var line in inputLines)
+            // Index for check the number we try to find.
+            for (var i = preamble; i < inputLines.Length; i++)
             {
-                var lineParts = line.Split(' ');
-
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
+                var numberToCheck = Convert.ToInt32(inputLines[i]);
+                var preambleNumbers = inputLines.Skip(i - preamble).Take(preamble).Select(x => Convert.ToInt32(x)).ToArray();
+                if (!CheckTheNumber(numberToCheck, preambleNumbers))
                 {
-                    validPasswordCount++;
+                    return numberToCheck;
                 }
             }
 
-            return validPasswordCount;
+            return -1;
+        }
+
+        private bool CheckTheNumber(int numberToCheck, int[] preambleNumbers)
+        {
+            for (var i = 0; i < preambleNumbers.Length; i++)
+            {
+                for (var j = i + 1; j < preambleNumbers.Length; j++)
+                {
+                    if (preambleNumbers[i] + preambleNumbers[j] == numberToCheck)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
-        ///    --- Part Two ---
-        ///    While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
-        ///
-        ///    The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
-        ///
-        ///    Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter.Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
-        ///
-        ///    Given the same example list from above:
-        ///
-        ///       1-3 a: abcde is valid: position 1 contains a and position 3 does not.
-        ///       1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
-        ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
-        ///    How many passwords are valid according to the new interpretation of the policies?
+        /// --- Part Two ---
+        /// The final step in breaking the XMAS encryption relies on the invalid number you just found: you must find a contiguous set of at least two numbers in your list which sum to the invalid number from step 1.
+        /// 
+        /// Again consider the above example:
+        /// 
+        /// 35
+        /// 20
+        /// 15
+        /// 25
+        /// 47
+        /// 40
+        /// 62
+        /// 55
+        /// 65
+        /// 95
+        /// 102
+        /// 117
+        /// 150
+        /// 182
+        /// 127
+        /// 219
+        /// 299
+        /// 277
+        /// 309
+        /// 576
+        /// In this list, adding up all of the numbers from 15 through 40 produces the invalid number from step 1, 127. (Of course, the contiguous set of numbers in your actual list might be much longer.)
+        /// 
+        /// To find the encryption weakness, add together the smallest and largest number in this contiguous range; in this example, these are 15 and 47, producing 62.
+        /// 
+        /// What is the encryption weakness in your XMAS-encrypted list of numbers?
         /// </summary>
-        private int RunPuzzle2()
+        private long RunPuzzle2()
         {
-            var validPasswordCount = 0;
+            var numberToSearch = RunPuzzle1();
+            var inputLines = GetInputLines().Select(x => Convert.ToInt64(x)).ToArray();
 
-            var inputLines = GetInputLines();
+            var numberList = FindNumberList(inputLines, numberToSearch);
 
-            foreach (var line in inputLines)
+            return numberList.Min() + numberList.Max();
+        }
+
+        private static List<long> FindNumberList(long[] inputLines, int numberToSearch)
+        {
+            for (var i = 0; i < inputLines.Length; i++)
             {
-                var lineParts = line.Split(' ');
+                var findingNumber = inputLines[i];
 
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
+                for (var j = i + 1; j < inputLines.Length; j++)
                 {
-                    validPasswordCount++;
+                    findingNumber += inputLines[j];
+
+                    if (findingNumber == numberToSearch)
+                    {
+                        return inputLines.Skip(i).Take(j - i).ToList();
+                    }
+                    
+                    if (findingNumber > numberToSearch)
+                    {
+                        break;
+                    }
                 }
             }
 
-            return validPasswordCount;
+            return null;
         }
     }
 }
