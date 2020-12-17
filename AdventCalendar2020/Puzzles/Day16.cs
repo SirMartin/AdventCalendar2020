@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -15,10 +16,10 @@ namespace AdventCalendar2020.Puzzles
             var result1 = RunPuzzle1();
             stopwatch.Stop();
             Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
+            //stopwatch.Restart();
+            //var result2 = RunPuzzle2();
+            //stopwatch.Stop();
+            //Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
         }
 
         private string[] GetInputLines()
@@ -27,51 +28,121 @@ namespace AdventCalendar2020.Puzzles
         }
 
         /// <summary>
-        /// --- Day 2: Password Philosophy ---
-        ///     Your flight departs in a few days from the coastal airport; the easiest way down to the coast from here is via toboggan.
-        /// 
-        ///     The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. "Something's wrong with our computers; we can't log in!" You ask if you can take a look.
-        /// 
-        ///     Their password database seems to be a little corrupted: some of the passwords wouldn't have been allowed by the Official Toboggan Corporate Policy that was in effect when they were chosen.
-        /// 
-        ///     To try to debug the problem, they have created a list (your puzzle input) of passwords(according to the corrupted database) and the corporate policy when that password was set.
-        /// 
-        ///     For example, suppose you have the following list:
-        /// 
-        /// 1-3 a: abcde
-        /// 1-3 b: cdefg
-        /// 2-9 c: ccccccccc
-        ///     Each line gives the password policy and then the password.The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid.For example, 1-3 a means that the password must contain a at least 1 time and at most 3 times.
-        /// 
-        ///     In the above example, 2 passwords are valid.The middle password, cdefg, is not; it contains no instances of b, but needs at least 1. The first and third passwords are valid: they contain one a or nine c, both within the limits of their respective policies.
-        /// 
-        ///     How many passwords are valid according to their policies?
+        /// --- Day 16: Ticket Translation ---
+        /// As you're walking to yet another connecting flight, you realize that one of the legs of your re-routed trip coming up is on a high-speed train. However, the train ticket you were given is in a language you don't understand.You should probably figure out what it says before you get to the train station after the next flight.
+        ///
+        /// Unfortunately, you can't actually read the words on the ticket. You can, however, read the numbers, and so you figure out the fields these tickets must have and the valid ranges for values in those fields.
+        ///
+        /// You collect the rules for ticket fields, the numbers on your ticket, and the numbers on other nearby tickets for the same train service (via the airport security cameras) together into a single document you can reference(your puzzle input).
+        ///
+        /// The rules for ticket fields specify a list of fields that exist somewhere on the ticket and the valid ranges of values for each field.For example, a rule like class: 1-3 or 5-7 means that one of the fields in every ticket is named class and can be any value in the ranges 1-3 or 5-7 (inclusive, such that 3 and 5 are both valid in this field, but 4 is not).
+        ///
+        /// Each ticket is represented by a single line of comma-separated values.The values are the numbers on the ticket in the order they appear; every ticket has the same format.For example, consider this ticket:
+        ///
+        /// .--------------------------------------------------------.
+        /// | ????: 101    ?????: 102   ??????????: 103     ???: 104 |
+        /// |                                                        |
+        /// | ??: 301  ??: 302             ???????: 303      ??????? |
+        /// | ??: 401  ??: 402           ???? ????: 403    ????????? |
+        /// '--------------------------------------------------------'
+        /// Here, ? represents text in a language you don't understand. This ticket might be represented as 101,102,103,104,301,302,303,401,402,403; of course, the actual train tickets you're looking at are much more complicated.In any case, you've extracted just the numbers in such a way that the first number is always the same specific field, the second number is always a different specific field, and so on - you just don't know what each position actually means!
+        ///
+        ///
+        /// Start by determining which tickets are completely invalid; these are tickets that contain values which aren't valid for any field. Ignore your ticket for now.
+        ///
+        /// For example, suppose you have the following notes:
+        ///
+        /// class: 1-3 or 5-7
+        /// row: 6-11 or 33-44
+        /// seat: 13-40 or 45-50
+        ///
+        /// your ticket:
+        /// 7,1,14
+        ///
+        /// nearby tickets:
+        /// 7,3,47
+        /// 40,4,50
+        /// 55,2,20
+        /// 38,6,12
+        /// It doesn't matter which position corresponds to which field; you can identify invalid nearby tickets by considering only whether tickets contain values that are not valid for any field. In this example, the values on the first nearby ticket are all valid for at least one field. This is not true of the other three nearby tickets: the values 4, 55, and 12 are are not valid for any field. Adding together all of the invalid values produces your ticket scanning error rate: 4 + 55 + 12 = 71.
+        ///
+        /// Consider the validity of the nearby tickets you scanned.What is your ticket scanning error rate?
         /// </summary>
         private int RunPuzzle1()
         {
-            var validPasswordCount = 0;
-
             var inputLines = GetInputLines();
 
-            foreach (var line in inputLines)
+            var rules = new Dictionary<string, string>();
+            var myTicket = new List<KeyValuePair<int, bool>>();
+            var nearbyTickets = new List<List<KeyValuePair<int, bool>>>();
+
+            var isMyTicket = false;
+            var isOtherTickets = false;
+            for (var i = 0; i < inputLines.Length; i++)
             {
-                var lineParts = line.Split(' ');
+                var line = inputLines[i];
 
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
+                if (string.IsNullOrWhiteSpace(line))
                 {
-                    validPasswordCount++;
+                    // Change type.
+                    if (!isMyTicket)
+                    {
+                        isMyTicket = true;
+                        i++;
+                    }
+                    else if (!isOtherTickets)
+                    {
+                        isOtherTickets = true;
+                        i++;
+                    }
+
+                    continue;
+                }
+
+                if (!isMyTicket)
+                {
+                    // Rules
+                    var name = line.Split(':')[0];
+                    var rulesText = line.Substring(line.IndexOf(':') + 1).Trim();
+
+                    rules.Add(name, TranslateRules(rulesText));
+                }
+                else if (!isOtherTickets)
+                {
+                    // My ticket.
+                    myTicket = ParseTicket(line);
+                }
+                else
+                {
+                    // Nearby tickets.
+                    nearbyTickets.Add(ParseTicket(line));
                 }
             }
 
-            return validPasswordCount;
+            return -1;
+        }
+
+        private string TranslateRules(string value)
+        {
+            // Take the different parts.
+            var parts = value.Split(new [] { "or" }, StringSplitOptions.None).Select(x => x.Trim());
+
+            var results = new List<string>();
+            foreach (var part in parts)
+            {
+                var p = part.Split('-');
+                var min = Convert.ToInt32(p[0]);
+                var max = Convert.ToInt32(p[1]);
+                results.Add(string.Join(",", Enumerable.Range(min, max - min + 1)));
+            }
+            
+
+            return string.Join(",", results);
+        }
+
+        private List<KeyValuePair<int, bool>> ParseTicket(string line)
+        {
+            return line.Split(',').Select(x => new KeyValuePair<int, bool>(Convert.ToInt32(x), false)).ToList();
         }
 
         /// <summary>
