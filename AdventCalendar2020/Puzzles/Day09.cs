@@ -1,33 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using NUnit.Framework;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day09
+    public class Day09 : AdventCalendarDay
     {
-        private const string DayNumber = "09";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
-
+        public override string DayNumber =>  "09";
+        public override (string, string) ExpectedResult => ("466456641", "55732936");
+        
         /// <summary>
         /// --- Day 9: Encoding Error ---
         /// With your neighbor happily enjoying their video game, you turn your attention to an open data port on the little screen in the seat in front of you.
@@ -75,7 +57,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it. What is the first number that does not have this property?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             const int preamble = 25;
             var inputLines = GetInputLines();
@@ -87,11 +69,11 @@ namespace AdventCalendar2020.Puzzles
                 var preambleNumbers = inputLines.Skip(i - preamble).Take(preamble).Select(x => Convert.ToInt32(x)).ToArray();
                 if (!CheckTheNumber(numberToCheck, preambleNumbers))
                 {
-                    return numberToCheck;
+                    return numberToCheck.ToString();
                 }
             }
 
-            return -1;
+            return string.Empty;
         }
 
         private bool CheckTheNumber(int numberToCheck, int[] preambleNumbers)
@@ -142,14 +124,14 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// What is the encryption weakness in your XMAS-encrypted list of numbers?
         /// </summary>
-        private long RunPuzzle2()
+        internal override string RunPuzzle2()
         {
-            var numberToSearch = RunPuzzle1();
+            var numberToSearch = Convert.ToInt32(RunPuzzle1());
             var inputLines = GetInputLines().Select(x => Convert.ToInt64(x)).ToArray();
 
             var numberList = FindNumberList(inputLines, numberToSearch);
 
-            return numberList.Min() + numberList.Max();
+            return (numberList.Min() + numberList.Max()).ToString();
         }
 
         private static List<long> FindNumberList(long[] inputLines, int numberToSearch)

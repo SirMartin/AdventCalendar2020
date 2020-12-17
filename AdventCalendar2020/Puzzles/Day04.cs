@@ -1,33 +1,15 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day04
+    public class Day04 : AdventCalendarDay
     {
-        private const string DayNumber = "04";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
-
+        public override string DayNumber =>  "04";
+        public override (string, string) ExpectedResult => ("170", "103");
+        
         /// <summary>
         /// --- Day 4: Passport Processing ---
         /// You arrive at the airport only to realize that you grabbed your North Pole Credentials instead of your passport.While these documents are extremely similar, North Pole Credentials aren't issued by a country and therefore aren't actually valid documentation for travel in most of the world.
@@ -77,7 +59,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Count the number of valid passports - those that have all required fields. Treat cid as optional.In your batch file, how many passports are valid?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var inputLines = GetInputLines();
 
@@ -109,7 +91,7 @@ namespace AdventCalendar2020.Puzzles
                 validPassports++;
             }
 
-            return validPassports;
+            return validPassports.ToString();
         }
 
         /// <summary>
@@ -186,7 +168,7 @@ namespace AdventCalendar2020.Puzzles
         /// iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
         /// Count the number of valid passports - those that have all required fields and valid values.Continue to treat cid as optional.In your batch file, how many passports are valid?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var inputLines = GetInputLines();
 
@@ -220,7 +202,7 @@ namespace AdventCalendar2020.Puzzles
                 validPassports++;
             }
 
-            return validPassports;
+            return validPassports.ToString();
         }
 
         public bool CheckField(string fieldName, string value)

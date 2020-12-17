@@ -1,30 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day12
+    public class Day12 : AdventCalendarDay
     {
-        private const string DayNumber = "12";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
+        public override string DayNumber =>  "12";
+        public override (string, string) ExpectedResult => ("", "");
 
         /// <summary>
         /// --- Day 3: Toboggan Trajectory ---
@@ -79,7 +62,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var validPasswordCount = 0;
 
@@ -103,7 +86,7 @@ namespace AdventCalendar2020.Puzzles
                 }
             }
 
-            return validPasswordCount;
+            return validPasswordCount.ToString();
         }
 
         /// <summary>
@@ -121,7 +104,7 @@ namespace AdventCalendar2020.Puzzles
         ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
         ///    How many passwords are valid according to the new interpretation of the policies?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var validPasswordCount = 0;
 
@@ -146,7 +129,7 @@ namespace AdventCalendar2020.Puzzles
                 }
             }
 
-            return validPasswordCount;
+            return validPasswordCount.ToString();
         }
     }
 }

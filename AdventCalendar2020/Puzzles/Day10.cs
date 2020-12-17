@@ -1,32 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day10
+    public class Day10 : AdventCalendarDay
     {
-        private const string DayNumber = "10";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
+        public override string DayNumber =>  "10";
+        public override (string, string) ExpectedResult => ("2414", "");
 
         /// <summary>
         /// --- Day 10: Adapter Array ---
@@ -110,7 +93,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Find a chain that uses all of your adapters to connect the charging outlet to your device's built-in adapter and count the joltage differences between the charging outlet, the adapters, and your device. What is the number of 1-jolt differences multiplied by the number of 3-jolt differences?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var inputLines = GetInputLines().Select(x => Convert.ToInt32(x)).ToList();
 
@@ -147,7 +130,9 @@ namespace AdventCalendar2020.Puzzles
 
             differenceBy3++; // From the device.
 
-            return differenceBy1 * differenceBy3;
+            var result = differenceBy1 * differenceBy3;
+
+            return result.ToString();
         }
 
         public long CountCombinations(List<int> adapters)
@@ -182,87 +167,12 @@ namespace AdventCalendar2020.Puzzles
 
         ///In your expense report, what is the product of the three entries that sum to 2020?
         /// </summary>
-        private long RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var orderedJoltages = GetInputLines().Select(x => Convert.ToInt32(x)).OrderBy(x => x).ToList();
-            return CountCombinations(orderedJoltages);
+            return CountCombinations(orderedJoltages).ToString();
         }
-        //private int RunPuzzle2()
-        //{
-        //    var orderedJoltages = GetInputLines().Select(x => Convert.ToInt32(x)).OrderBy(x => x).ToArray();
-        //    var start = 0;
-        //    var end = orderedJoltages.Max() + 3;
-        //    var solutions = new List<string>();
-
-        //    // Add the first step.
-        //    var options = orderedJoltages.Where(x => x >= start + 1 && x <= start + 3);
-        //    foreach (var opt in options)
-        //    {
-        //        solutions.Add($"{start},{opt}");
-        //    }
-
-        //    var stopwatch = new Stopwatch();
-        //    stopwatch.Start();
-        //    for (var i = 0; i < orderedJoltages.Length; i++)
-        //    {
-        //        Console.SetCursorPosition(0, Console.CursorTop);
-        //        Console.Write("{0} -  {1}", i, stopwatch.Elapsed);
-        //        stopwatch.Restart();
-        //        var newSolutions = new List<string>();
-
-        //        var breakThis = false;
-
-        //        for (var j = i; j < orderedJoltages.Length; j++)
-        //        {
-        //            var v = orderedJoltages[j];
-        //            foreach (var solution in solutions.Where(x => !x.EndsWith(v.ToString())))
-        //            {
-        //                var latestJoltage = Convert.ToInt32(solution.Split(',').Last());
-        //                if (v >= latestJoltage + 1 && v <= latestJoltage + 3)
-        //                {
-        //                    newSolutions.Add(solution + "," + v);
-        //                }
-        //                //else if (v > latestJoltage + 3)
-        //                //{
-        //                //    breakThis = true;
-        //                //    break;
-        //                //}
-
-        //                if (v + 3 < orderedJoltages[j])
-        //                {
-        //                    breakThis = true;
-        //                    break;
-        //                }
-
-        //                if (Convert.ToInt32(solution.Split(',').Last()) > orderedJoltages[i] - 4)
-        //                {
-        //                    newSolutions.Add(solution);
-        //                }
-        //            }
-
-        //            if (breakThis)
-        //            {
-        //                breakThis = false;
-        //                break;
-        //            }
-        //        }
-
-        //        solutions = new List<string>(newSolutions.Distinct());
-        //    }
-
-        //    // Check if can join to the device.
-        //    var finalSolutions = new List<string>();
-        //    foreach (var solution in solutions)
-        //    {
-        //        var latestJoltage = Convert.ToInt32(solution.Split(',').Last());
-        //        if (end >= latestJoltage + 1 && end <= latestJoltage + 3)
-        //        {
-        //            finalSolutions.Add(solution + "," + end);
-        //        }
-        //    }
-
-        //    return finalSolutions.Count;
-        //}
+        
 
         /// <summary>
         /// That means more billions of years.

@@ -1,28 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day08
+    public class Day08 : AdventCalendarDay
     {
-        private const string DayNumber = "08";
+        public override string DayNumber =>  "08";
+        public override (string, string) ExpectedResult => ("1941", "2096");
         private string[] _inputLines;
 
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
+        public new string[] GetInputLines()
         {
             if (_inputLines != null)
             {
@@ -78,7 +66,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Run your copy of the boot code.Immediately before any instruction is executed a second time, what value is in the accumulator?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var inputLines = GetInputLines();
             var pastLines = new List<int>();
@@ -106,7 +94,7 @@ namespace AdventCalendar2020.Puzzles
                 }
             }
 
-            return accValue;
+            return accValue.ToString();
         }
 
         private static int CalculateNewValue(string instruction, int i)
@@ -162,7 +150,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Fix the program so that it terminates normally by changing exactly one jmp(to nop) or nop(to jmp). What is the value of the accumulator after the program terminates?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var inputLines = GetInputLines();
             var pastLines = new List<int>();
@@ -216,7 +204,7 @@ namespace AdventCalendar2020.Puzzles
 
                 if (i >= inputLines.Length)
                 {
-                    return accValue;
+                    return accValue.ToString();
                 }
 
                 // Program not finished. Try again. Restart variables.
@@ -228,7 +216,7 @@ namespace AdventCalendar2020.Puzzles
             }
 
             // Program finished.
-            return -1;
+            return string.Empty;
         }
     }
 }

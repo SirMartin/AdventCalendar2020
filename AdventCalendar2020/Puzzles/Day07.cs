@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day07
+    public class Day07 : AdventCalendarDay
     {
         private string[] _inputLines;
 
@@ -19,22 +19,11 @@ namespace AdventCalendar2020.Puzzles
             _inputLines = inputLines;
         }
 
-        private const string DayNumber = "07";
+        public override string DayNumber =>  "07";
+        public override (string, string) ExpectedResult => ("372", "8015");
 
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
 
-        private string[] GetInputLines()
+        public new string[] GetInputLines()
         {
             if (_inputLines != null)
             {
@@ -77,7 +66,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// How many bag colors can eventually contain at least one shiny gold bag? (The list of rules is quite long; make sure you get all of it.)
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             const string myBag = "shiny gold";
 
@@ -100,7 +89,7 @@ namespace AdventCalendar2020.Puzzles
                 colorsToIterate = new List<string>(newColorsFounded);
             }
 
-            return totalColorsCanCarryMyBag.Count;
+            return totalColorsCanCarryMyBag.Count.ToString();
         }
 
         private List<string> GetColorsCanCarryMyBag(List<string> colorsToSearch, List<string> colorsFoundedForNow)
@@ -158,10 +147,10 @@ namespace AdventCalendar2020.Puzzles
         /// In this example, a single shiny gold bag must contain 126 other bags.
         /// How many individual bags are required inside your single shiny gold bag?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var myBag = GetMyBag("shiny gold");
-            return myBag.ContentNumber;
+            return myBag.ContentNumber.ToString();
         }
 
         #region Bad Approaches

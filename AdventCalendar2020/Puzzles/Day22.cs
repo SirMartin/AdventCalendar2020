@@ -1,30 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day22
+    public class Day22 : AdventCalendarDay
     {
-        private const string DayNumber = "22";
+        public override string DayNumber =>  "22";
+        public override (string, string) ExpectedResult => ("", "");
 
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
 
         /// <summary>
         /// --- Day 3: Toboggan Trajectory ---
@@ -79,31 +61,9 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
-            var validPasswordCount = 0;
-
-            var inputLines = GetInputLines();
-
-            foreach (var line in inputLines)
-            {
-                var lineParts = line.Split(' ');
-
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
-                {
-                    validPasswordCount++;
-                }
-            }
-
-            return validPasswordCount;
+            return string.Empty;
         }
 
         /// <summary>
@@ -121,32 +81,9 @@ namespace AdventCalendar2020.Puzzles
         ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
         ///    How many passwords are valid according to the new interpretation of the policies?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
-            var validPasswordCount = 0;
-
-            var inputLines = GetInputLines();
-
-            foreach (var line in inputLines)
-            {
-                var lineParts = line.Split(' ');
-
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
-                {
-                    validPasswordCount++;
-                }
-            }
-
-            return validPasswordCount;
+            return string.Empty;
         }
     }
 }

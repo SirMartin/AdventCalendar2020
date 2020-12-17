@@ -1,32 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Microsoft.Win32.SafeHandles;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day17
+    public class Day17 : AdventCalendarDay
     {
-        private const string DayNumber = "17";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
+        public override string DayNumber =>  "17";
+        public override (string, string) ExpectedResult => ("372", "1896");
 
         /// <summary>
         /// --- Day 17: Conway Cubes ---
@@ -173,7 +155,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Starting with your given initial configuration, simulate six cycles. How many cubes are left in the active state after the sixth cycle?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var cube = new Cube3D(GetInputLines());
 
@@ -184,7 +166,7 @@ namespace AdventCalendar2020.Puzzles
                 //cube.Print();
             }
 
-            return cube.Actives.Count;
+            return cube.Actives.Count.ToString();
         }
 
         //TODO: Needs a big refactoring because it takes almost 5 minutes.
@@ -417,7 +399,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// Starting with your given initial configuration, simulate six cycles in a 4-dimensional space. How many cubes are left in the active state after the sixth cycle?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var cube = new Cube4D(GetInputLines());
 
@@ -426,7 +408,7 @@ namespace AdventCalendar2020.Puzzles
                 cube.Expand();
             }
 
-            return cube.Actives.Count;
+            return cube.Actives.Count.ToString();
         }
     }
 

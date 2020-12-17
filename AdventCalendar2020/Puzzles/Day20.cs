@@ -1,30 +1,12 @@
-﻿using System;
-using System.Diagnostics;
+﻿using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day20
+    public class Day20 : AdventCalendarDay
     {
-        private const string DayNumber = "20";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
-
+        public override string DayNumber =>  "20";
+        public override (string, string) ExpectedResult => ("", "");
+        
         /// <summary>
         /// --- Day 1: Report Repair ---
         ///After saving Christmas five years in a row, you've decided to take a vacation at a nice resort on a tropical island. Surely, Christmas will go on without you.
@@ -53,24 +35,9 @@ namespace AdventCalendar2020.Puzzles
         ///
         ///Of course, your expense report is much larger. Find the two entries that sum to 2020; what do you get if you multiply them together?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
-            var inputLines = GetInputLines();
-
-            for (var i = 0; i < inputLines.Length; i++)
-            {
-                var a = Convert.ToInt32(inputLines[i]);
-                for (var k = i; k < inputLines.Length; k++)
-                {
-                    var b = Convert.ToInt32(inputLines[k]);
-                    if (a + b == 2020)
-                    {
-                        return a * b;
-                    }
-                }
-            }
-
-            return -1;
+            return string.Empty;
         }
 
         /// <summary>
@@ -80,28 +47,9 @@ namespace AdventCalendar2020.Puzzles
 
         ///In your expense report, what is the product of the three entries that sum to 2020?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
-            var inputLines = GetInputLines();
-
-            for (var i = 0; i < inputLines.Length; i++)
-            {
-                var a = Convert.ToInt32(inputLines[i]);
-                for (var k = i; k < inputLines.Length; k++)
-                {
-                    var b = Convert.ToInt32(inputLines[k]);
-                    for (var j = k; j < inputLines.Length; j++)
-                    {
-                        var c = Convert.ToInt32(inputLines[j]);
-                        if (a + b + c == 2020)
-                        {
-                            return a * b * c;
-                        }
-                    }
-                }
-            }
-
-            return -1;
+            return string.Empty;
         }
     }
 }

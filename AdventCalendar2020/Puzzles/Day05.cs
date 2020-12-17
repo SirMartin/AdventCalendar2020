@@ -1,31 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day05
+    public class Day05 : AdventCalendarDay
     {
-        private const string DayNumber = "05";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            stopwatch.Restart();
-            var result2 = RunPuzzle2();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
+        public override string DayNumber =>  "05";
+        public override (string, string) ExpectedResult => ("874", "594");
 
         /// <summary>
         /// --- Day 5: Binary Boarding ---
@@ -66,13 +49,13 @@ namespace AdventCalendar2020.Puzzles
         /// BBFFBBFRLL: row 102, column 4, seat ID 820.
         /// As a sanity check, look through your list of boarding passes.What is the highest seat ID on a boarding pass?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var inputLines = GetInputLines();
 
             var list = inputLines.Select(line => new PlaneTicket(line)).ToList();
 
-            return list.Max(x => x.SeatId);
+            return list.Max(x => x.SeatId).ToString();
         }
 
         /// <summary>
@@ -85,7 +68,7 @@ namespace AdventCalendar2020.Puzzles
         /// 
         /// What is the ID of your seat?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
             var inputLines = GetInputLines();
 
@@ -111,11 +94,11 @@ namespace AdventCalendar2020.Puzzles
                 if (existingTickets.Exists(x => x.SeatId == missingTicketId - 1)
                     && existingTickets.Exists(x => x.SeatId == missingTicketId + 1))
                 {
-                    return missingTicketId;
+                    return missingTicketId.ToString();
                 }
             }
 
-            return -1;
+            return string.Empty;
         }
         
         private int GenerateSeatId(int row, int col)

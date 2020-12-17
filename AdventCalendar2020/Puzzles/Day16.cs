@@ -1,31 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
-    public class Day16
+    public class Day16 : AdventCalendarDay
     {
-        private const string DayNumber = "16";
-
-        public void Run()
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result1 = RunPuzzle1();
-            stopwatch.Stop();
-            Console.WriteLine($"Day {DayNumber} - Puzzle 1: {result1} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-            //stopwatch.Restart();
-            //var result2 = RunPuzzle2();
-            //stopwatch.Stop();
-            //Console.WriteLine($"Day {DayNumber} - Puzzle 2: {result2} - Elapsed: {stopwatch.ElapsedMilliseconds} ms");
-        }
-
-        private string[] GetInputLines()
-        {
-            return System.IO.File.ReadAllLines($@"inputs\day{DayNumber}.txt");
-        }
+        public override string DayNumber =>  "16";
+        public override (string, string) ExpectedResult => ("", "");
 
         /// <summary>
         /// --- Day 16: Ticket Translation ---
@@ -68,7 +51,7 @@ namespace AdventCalendar2020.Puzzles
         ///
         /// Consider the validity of the nearby tickets you scanned.What is your ticket scanning error rate?
         /// </summary>
-        private int RunPuzzle1()
+        internal override string RunPuzzle1()
         {
             var inputLines = GetInputLines();
 
@@ -119,7 +102,7 @@ namespace AdventCalendar2020.Puzzles
                 }
             }
 
-            return -1;
+            return string.Empty;
         }
 
         private string TranslateRules(string value)
@@ -160,32 +143,9 @@ namespace AdventCalendar2020.Puzzles
         ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
         ///    How many passwords are valid according to the new interpretation of the policies?
         /// </summary>
-        private int RunPuzzle2()
+        internal override string RunPuzzle2()
         {
-            var validPasswordCount = 0;
-
-            var inputLines = GetInputLines();
-
-            foreach (var line in inputLines)
-            {
-                var lineParts = line.Split(' ');
-
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
-                {
-                    validPasswordCount++;
-                }
-            }
-
-            return validPasswordCount;
+            return string.Empty;
         }
     }
 }
