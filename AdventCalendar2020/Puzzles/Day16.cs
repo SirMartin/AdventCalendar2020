@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Security;
 using AdventCalendar2020.Interfaces;
 
 namespace AdventCalendar2020.Puzzles
 {
     public class Day16 : AdventCalendarDay
     {
-        public override string DayNumber =>  "16";
-        public override (string, string) ExpectedResult => ("", "");
+        public override string DayNumber => "16";
+        public override (string, string) ExpectedResult => ("27850", "491924517533");
 
         /// <summary>
         /// --- Day 16: Ticket Translation ---
@@ -55,9 +57,68 @@ namespace AdventCalendar2020.Puzzles
         {
             var inputLines = GetInputLines();
 
-            var rules = new Dictionary<string, string>();
-            var myTicket = new List<KeyValuePair<int, bool>>();
-            var nearbyTickets = new List<List<KeyValuePair<int, bool>>>();
+            var ticketValidator = new TicketValidator(inputLines);
+
+            var notValidValues = ticketValidator.ValuesNotValid();
+
+            return notValidValues.Sum().ToString();
+        }
+
+        /// <summary>
+        /// --- Part Two ---
+        /// Now that you've identified which tickets contain invalid values, discard those tickets entirely. Use the remaining valid tickets to determine which field is which.
+        /// 
+        ///     Using the valid ranges for each field, determine what order the fields appear on the tickets.The order is consistent between all tickets: if seat is the third field, it is the third field on every ticket, including your ticket.
+        /// 
+        ///     For example, suppose you have the following notes:
+        /// 
+        /// class: 0-1 or 4-19
+        /// row: 0-5 or 8-19
+        /// seat: 0-13 or 16-19
+        /// 
+        /// your ticket:
+        /// 11,12,13
+        /// 
+        /// nearby tickets:
+        /// 3,9,18
+        /// 15,1,5
+        /// 5,14,9
+        /// Based on the nearby tickets in the above example, the first position must be row, the second position must be class, and the third position must be seat; you can conclude that in your ticket, class is 12, row is 11, and seat is 13.
+        /// 
+        /// Once you work out which field is which, look for the six fields on your ticket that start with the word departure.What do you get if you multiply those six values together?
+        /// </summary>
+        internal override string RunPuzzle2()
+        {
+            var inputLines = GetInputLines();
+
+            var ticketValidator = new TicketValidator(inputLines);
+
+            ticketValidator.ValuesNotValid();
+
+            var validRulePositions = ticketValidator.FindRulePositions().Where(x => x.Value.StartsWith("departure"));
+
+            var result = 1L;
+            foreach (var validRulePosition in validRulePositions)
+            {
+                result *= ticketValidator.MyTicket[validRulePosition.Key];
+            }
+
+            return result.ToString();
+        }
+    }
+
+    public class TicketValidator
+    {
+        public Dictionary<string, string> Rules { get; }
+        public List<int> MyTicket { get; }
+        public List<List<int>> NearbyTickets { get; }
+        public List<List<int>> ValidTickets { get; set; }
+
+        public TicketValidator(string[] inputLines)
+        {
+            Rules = new Dictionary<string, string>();
+            NearbyTickets = new List<List<int>>();
+            ValidTickets = new List<List<int>>();
 
             var isMyTicket = false;
             var isOtherTickets = false;
@@ -88,27 +149,25 @@ namespace AdventCalendar2020.Puzzles
                     var name = line.Split(':')[0];
                     var rulesText = line.Substring(line.IndexOf(':') + 1).Trim();
 
-                    rules.Add(name, TranslateRules(rulesText));
+                    Rules.Add(name, TranslateRules(rulesText));
                 }
                 else if (!isOtherTickets)
                 {
                     // My ticket.
-                    myTicket = ParseTicket(line);
+                    MyTicket = ParseTicket(line);
                 }
                 else
                 {
                     // Nearby tickets.
-                    nearbyTickets.Add(ParseTicket(line));
+                    NearbyTickets.Add(ParseTicket(line));
                 }
             }
-
-            return string.Empty;
         }
 
         private string TranslateRules(string value)
         {
             // Take the different parts.
-            var parts = value.Split(new [] { "or" }, StringSplitOptions.None).Select(x => x.Trim());
+            var parts = value.Split(new[] { "or" }, StringSplitOptions.None).Select(x => x.Trim());
 
             var results = new List<string>();
             foreach (var part in parts)
@@ -118,34 +177,87 @@ namespace AdventCalendar2020.Puzzles
                 var max = Convert.ToInt32(p[1]);
                 results.Add(string.Join(",", Enumerable.Range(min, max - min + 1)));
             }
-            
+
 
             return string.Join(",", results);
         }
 
-        private List<KeyValuePair<int, bool>> ParseTicket(string line)
+        private List<int> ParseTicket(string line)
         {
-            return line.Split(',').Select(x => new KeyValuePair<int, bool>(Convert.ToInt32(x), false)).ToList();
+            return line.Split(',').Select(x => Convert.ToInt32(x)).ToList();
         }
 
-        /// <summary>
-        ///    --- Part Two ---
-        ///    While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
-        ///
-        ///    The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
-        ///
-        ///    Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter.Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
-        ///
-        ///    Given the same example list from above:
-        ///
-        ///       1-3 a: abcde is valid: position 1 contains a and position 3 does not.
-        ///       1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
-        ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
-        ///    How many passwords are valid according to the new interpretation of the policies?
-        /// </summary>
-        internal override string RunPuzzle2()
+        public List<int> ValuesNotValid()
         {
-            return string.Empty;
+            var result = new List<int>();
+
+            foreach (var ticket in NearbyTickets)
+            {
+                var isValid = true;
+                foreach (var t in ticket)
+                {
+                    if (!Rules.Any(x => x.Value.Split(',').Contains(t.ToString())))
+                    {
+                        result.Add(t);
+                        isValid = false;
+                    }
+                }
+
+                if (isValid)
+                {
+                    ValidTickets.Add(ticket);
+                }
+            }
+
+            return result;
+        }
+
+        // TODO: Optimize ir, it takes around 18 seconds.
+        public Dictionary<int, string> FindRulePositions()
+        {
+            var rulePositions = new Dictionary<int, string>();
+            var ticketsToCheck = new List<List<int>>(ValidTickets);
+            ticketsToCheck.Add(MyTicket);
+
+            while (Rules.Count != rulePositions.Count)
+            {
+                for (var ticketIndex = 0; ticketIndex < MyTicket.Count; ticketIndex++)
+                {
+                    List<string> possibleRules = null;
+                    foreach (var ticket in ticketsToCheck)
+                    {
+                        var validRules = Rules.Where(x => x.Value.Split(',').Contains(ticket[ticketIndex].ToString()))
+                            .Select(x => x.Key).ToList();
+
+                        // Remove rules assigned.
+                        validRules = validRules.Where(x => !rulePositions.ContainsValue(x)).ToList();
+
+                        if (possibleRules == null)
+                        {
+                            // First ticket.
+                            possibleRules = new List<string>(validRules);
+                        }
+                        else
+                        {
+                            // Rest of tickets.
+                            var stillValidIndexes = possibleRules.Intersect(validRules);
+                            possibleRules = new List<string>(stillValidIndexes);
+                        }
+
+                        if (possibleRules.Count == 1)
+                        {
+                            if (!rulePositions.ContainsKey(ticketIndex))
+                            {
+                                rulePositions.Add(ticketIndex, possibleRules.First());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return rulePositions;
         }
     }
 }
