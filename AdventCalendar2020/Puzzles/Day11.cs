@@ -6,98 +6,358 @@ namespace AdventCalendar2020.Puzzles
 {
     public class Day11 : AdventCalendarDay
     {
-        public override string DayNumber =>  "11";
+        public override string DayNumber => "11";
         public override (string, string) ExpectedResult => ("", "");
 
         /// <summary>
-        /// --- Day 2: Password Philosophy ---
-        ///     Your flight departs in a few days from the coastal airport; the easiest way down to the coast from here is via toboggan.
+        /// --- Day 11: Seating System ---
+        /// Your plane lands with plenty of time to spare.The final leg of your journey is a ferry that goes directly to the tropical island where you can finally start your vacation.As you reach the waiting area to board the ferry, you realize you're so early, nobody else has even arrived yet!
         /// 
-        ///     The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. "Something's wrong with our computers; we can't log in!" You ask if you can take a look.
+        /// By modeling the process people use to choose(or abandon) their seat in the waiting area, you're pretty sure you can predict the best place to sit. You make a quick map of the seat layout (your puzzle input).
         /// 
-        ///     Their password database seems to be a little corrupted: some of the passwords wouldn't have been allowed by the Official Toboggan Corporate Policy that was in effect when they were chosen.
+        /// The seat layout fits neatly on a grid.Each position is either floor (.), an empty seat(L), or an occupied seat(#). For example, the initial seat layout might look like this:
         /// 
-        ///     To try to debug the problem, they have created a list (your puzzle input) of passwords(according to the corrupted database) and the corporate policy when that password was set.
+        /// L.LL.LL.LL
+        /// LLLLLLL.LL
+        /// L.L.L..L..
+        /// LLLL.LL.LL
+        /// L.LL.LL.LL
+        /// L.LLLLL.LL
+        /// ..L.L.....
+        /// LLLLLLLLLL
+        /// L.LLLLLL.L
+        /// L.LLLLL.LL
+        /// Now, you just need to model the people who will be arriving shortly. Fortunately, people are entirely predictable and always follow a simple set of rules. All decisions are based on the number of occupied seats adjacent to a given seat (one of the eight positions immediately up, down, left, right, or diagonal from the seat). The following rules are applied to every seat simultaneously:
         /// 
-        ///     For example, suppose you have the following list:
+        /// If a seat is empty(L) and there are no occupied seats adjacent to it, the seat becomes occupied.
+        /// If a seat is occupied (#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
+        /// Otherwise, the seat's state does not change.
+        /// Floor (.) never changes; seats don't move, and nobody sits on the floor.
         /// 
-        /// 1-3 a: abcde
-        /// 1-3 b: cdefg
-        /// 2-9 c: ccccccccc
-        ///     Each line gives the password policy and then the password.The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid.For example, 1-3 a means that the password must contain a at least 1 time and at most 3 times.
+        /// After one round of these rules, every seat in the example layout becomes occupied:
         /// 
-        ///     In the above example, 2 passwords are valid.The middle password, cdefg, is not; it contains no instances of b, but needs at least 1. The first and third passwords are valid: they contain one a or nine c, both within the limits of their respective policies.
+        /// #.##.##.##
+        /// #######.##
+        /// #.#.#..#..
+        /// ####.##.##
+        /// #.##.##.##
+        /// #.#####.##
+        /// ..#.#.....
+        /// ##########
+        /// #.######.#
+        /// #.#####.##
+        /// After a second round, the seats with four or more occupied adjacent seats become empty again:
         /// 
-        ///     How many passwords are valid according to their policies?
+        /// #.LL.L#.##
+        /// #LLLLLL.L#
+        /// L.L.L..L..
+        /// #LLL.LL.L#
+        /// #.LL.LL.LL
+        /// #.LLLL#.##
+        /// ..L.L.....
+        /// #LLLLLLLL#
+        /// #.LLLLLL.L
+        /// #.#LLLL.##
+        /// This process continues for three more rounds:
+        /// 
+        /// #.##.L#.##
+        /// #L###LL.L#
+        /// L.#.#..#..
+        /// #L##.##.L#
+        /// #.##.LL.LL
+        /// #.###L#.##
+        /// ..#.#.....
+        /// #L######L#
+        /// #.LL###L.L
+        /// #.#L###.##
+        /// #.#L.L#.##
+        /// #LLL#LL.L#
+        /// L.L.L..#..
+        /// #LLL.##.L#
+        /// #.LL.LL.LL
+        /// #.LL#L#.##
+        /// ..L.L.....
+        /// #L#LLLL#L#
+        /// #.LLLLLL.L
+        /// #.#L#L#.##
+        /// #.#L.L#.##
+        /// #LLL#LL.L#
+        /// L.#.L..#..
+        /// #L##.##.L#
+        /// #.#L.LL.LL
+        /// #.#L#L#.##
+        /// ..L.L.....
+        /// #L#L##L#L#
+        /// #.LLLLLL.L
+        /// #.#L#L#.##
+        /// At this point, something interesting happens: the chaos stabilizes and further applications of these rules cause no seats to change state! Once people stop moving around, you count 37 occupied seats.
+        /// 
+        /// Simulate your seating area by applying the seating rules repeatedly until no seats change state.How many seats end up occupied?
         /// </summary>
         internal override string RunPuzzle1()
         {
-            var validPasswordCount = 0;
+            //const int amountOfCycles = 1;
 
-            var inputLines = GetInputLines();
+            var floorPlan = new FloorPlan(GetInputLines());
 
-            foreach (var line in inputLines)
+            floorPlan.RunSeatCycle();
+
+            var result = 0;
+            for (var r = 0; r < floorPlan.Rows; r++)
             {
-                var lineParts = line.Split(' ');
-
-                var minMax = lineParts[0].Split('-');
-                var min = Convert.ToInt32(minMax[0]);
-                var max = Convert.ToInt32(minMax[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var count = lineParts[2].Count(x => x == letter);
-
-                if (count >= min && count <= max)
+                for (var c = 0; c < floorPlan.Columns; c++)
                 {
-                    validPasswordCount++;
+                    if (floorPlan.Seats[r, c] == true)
+                    {
+                        result++;
+                    }
                 }
             }
 
-            return validPasswordCount.ToString();
+            return result.ToString();
         }
 
         /// <summary>
-        ///    --- Part Two ---
-        ///    While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
-        ///
-        ///    The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
-        ///
-        ///    Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter.Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
-        ///
-        ///    Given the same example list from above:
-        ///
-        ///       1-3 a: abcde is valid: position 1 contains a and position 3 does not.
-        ///       1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
-        ///       2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
-        ///    How many passwords are valid according to the new interpretation of the policies?
+        /// --- Part Two ---
+        /// As soon as people start to arrive, you realize your mistake.People don't just care about adjacent seats - they care about the first seat they can see in each of those eight directions!
+        /// 
+        /// Now, instead of considering just the eight immediately adjacent seats, consider the first seat in each of those eight directions.For example, the empty seat below would see eight occupied seats:
+        /// 
+        /// .......#.
+        /// ...#.....
+        /// .#.......
+        /// .........
+        /// ..#L....#
+        /// ....#....
+        /// .........
+        /// #........
+        /// ...#.....
+        /// The leftmost empty seat below would only see one empty seat, but cannot see any of the occupied ones:
+        /// 
+        /// .............
+        /// .L.L.#.#.#.#.
+        /// .............
+        /// The empty seat below would see no occupied seats:
+        /// 
+        /// .##.##.
+        /// #.#.#.#
+        /// ##...##
+        /// ...L...
+        /// ##...##
+        /// #.#.#.#
+        /// .##.##.
+        /// Also, people seem to be more tolerant than you expected: it now takes five or more visible occupied seats for an occupied seat to become empty(rather than four or more from the previous rules). The other rules still apply: empty seats that see no occupied seats become occupied, seats matching no rule don't change, and floor never changes.
+        /// 
+        /// Given the same starting layout as above, these new rules cause the seating area to shift around as follows:
+        /// 
+        /// L.LL.LL.LL
+        /// LLLLLLL.LL
+        /// L.L.L..L..
+        /// LLLL.LL.LL
+        /// L.LL.LL.LL
+        /// L.LLLLL.LL
+        /// ..L.L.....
+        /// LLLLLLLLLL
+        /// L.LLLLLL.L
+        /// L.LLLLL.LL
+        /// #.##.##.##
+        /// #######.##
+        /// #.#.#..#..
+        /// ####.##.##
+        /// #.##.##.##
+        /// #.#####.##
+        /// ..#.#.....
+        /// ##########
+        /// #.######.#
+        /// #.#####.##
+        /// #.LL.LL.L#
+        /// #LLLLLL.LL
+        /// L.L.L..L..
+        /// LLLL.LL.LL
+        /// L.LL.LL.LL
+        /// L.LLLLL.LL
+        /// ..L.L.....
+        /// LLLLLLLLL#
+        /// #.LLLLLL.L
+        /// #.LLLLL.L#
+        /// #.L#.##.L#
+        /// #L#####.LL
+        /// L.#.#..#..
+        /// ##L#.##.##
+        /// #.##.#L.##
+        /// #.#####.#L
+        /// ..#.#.....
+        /// LLL####LL#
+        /// #.L#####.L
+        /// #.L####.L#
+        /// #.L#.L#.L#
+        /// #LLLLLL.LL
+        /// L.L.L..#..
+        /// ##LL.LL.L#
+        /// L.LL.LL.L#
+        /// #.LLLLL.LL
+        /// ..L.L.....
+        /// LLLLLLLLL#
+        /// #.LLLLL#.L
+        /// #.L#LL#.L#
+        /// #.L#.L#.L#
+        /// #LLLLLL.LL
+        /// L.L.L..#..
+        /// ##L#.#L.L#
+        /// L.L#.#L.L#
+        /// #.L####.LL
+        /// ..#.#.....
+        /// LLL###LLL#
+        /// #.LLLLL#.L
+        /// #.L#LL#.L#
+        /// #.L#.L#.L#
+        /// #LLLLLL.LL
+        /// L.L.L..#..
+        /// ##L#.#L.L#
+        /// L.L#.LL.L#
+        /// #.LLLL#.LL
+        /// ..#.L.....
+        /// LLL###LLL#
+        /// #.LLLLL#.L
+        /// #.L#LL#.L#
+        /// Again, at this point, people stop shifting around and the seating area reaches equilibrium. Once this occurs, you count 26 occupied seats.
+        /// 
+        /// Given the new visibility method and the rule change for occupied seats becoming empty, once equilibrium is reached, how many seats end up occupied?
         /// </summary>
         internal override string RunPuzzle2()
         {
-            var validPasswordCount = 0;
+            return string.Empty;
+        }
+    }
 
-            var inputLines = GetInputLines();
+    public class FloorPlan
+    {
+        public int Rows { get; }
+        public int Columns { get; }
 
-            foreach (var line in inputLines)
+        public FloorPlan(string[] input)
+        {
+            Rows = input.Length;
+            Columns = input[0].Length;
+
+            Seats = new bool?[Rows, Columns];
+
+            for (var r = 0; r < Rows; r++)
             {
-                var lineParts = line.Split(' ');
-
-                var positions = lineParts[0].Split('-');
-                var pos1 = Convert.ToInt32(positions[0]);
-                var pos2 = Convert.ToInt32(positions[1]);
-
-                var letter = lineParts[1].ToCharArray()[0];
-
-                var passwordLetters = lineParts[2].ToCharArray();
-
-                if ((passwordLetters[pos1 - 1] == letter && passwordLetters[pos2 - 1] != letter) ||
-                    (passwordLetters[pos1 - 1] != letter && passwordLetters[pos2 - 1] == letter))
+                for (var c = 0; c < Columns; c++)
                 {
-                    validPasswordCount++;
+                    if (input[r][c] == 'L')
+                    {
+                        Seats[r, c] = false;
+                    }
+                    else
+                    {
+                        Seats[r, c] = null;
+                    }
+                }
+            }
+        }
+
+        public bool?[,] Seats { get; set; }
+
+        public void RunSeatCycle()
+        {
+            var isAnyMovement = true;
+            
+            while (isAnyMovement)
+            {
+                isAnyMovement = false;
+                var newSeatPlan = new bool?[Rows, Columns];
+
+                for (var r = 0; r < Rows; r++)
+                {
+                    for (var c = 0; c < Columns; c++)
+                    {
+                        newSeatPlan[r, c] = GetNewSeatStatus(r, c);
+
+                        if (Seats[r, c] != newSeatPlan[r, c])
+                        {
+                            isAnyMovement = true;
+                        }
+                    }
+                }
+
+                //Print(rounds, newSeatPlan);
+
+                Seats = (bool?[,])newSeatPlan.Clone();
+            }
+        }
+
+        private bool? GetNewSeatStatus(int r, int c)
+        {
+            // If it's floor, stays as floor.
+            if (Seats[r, c] == null)
+            {
+                return null;
+            }
+
+            if (Seats[r, c] == false)
+            {
+                // Free seat.
+                if (GetNumberOccupiedAdjacentSeats(r, c) == 0)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                // Occupied seat
+                if (GetNumberOccupiedAdjacentSeats(r, c) >= 4)
+                {
+                    return false;
                 }
             }
 
-            return validPasswordCount.ToString();
+            // Same status as before.
+            return Seats[r, c];
+        }
+
+        private int GetNumberOccupiedAdjacentSeats(int pr, int pc)
+        {
+            var count = 0;
+            for (var r = pr - 1; r <= pr + 1; r++)
+            {
+                for (var c = pc - 1; c <= pc + 1; c++)
+                {
+                    if (r >= 0 && r < Rows && c >= 0 && c < Columns && Seats[r, c] == true && (r != pr || c != pc))
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        public void Print(int round, bool?[,] seats)
+        {
+            Console.WriteLine($"After {round} cycles.");
+
+            for (var r = 0; r < Rows; r++)
+            {
+                for (var c = 0; c < Columns; c++)
+                {
+                    switch (seats[r, c])
+                    {
+                        case null:
+                            Console.Write('.');
+                            break;
+                        case false:
+                            Console.Write('L');
+                            break;
+                        case true:
+                            Console.Write('#');
+                            break;
+                    }
+                }
+                Console.WriteLine("");
+            }
+            Console.WriteLine("");
         }
     }
 }
